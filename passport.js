@@ -3,7 +3,7 @@ const passport = require("passport");
 const passportJWT = require("passport-jwt");
 const JWTStrategy = passportJWT.Strategy;
 const ExtractJWT = passportJWT.ExtractJwt;
-const User = require("./models/user");
+const Users = require("./models/user");
 const bcrypt = require("bcryptjs");
 passport.use(
   new LocalStrategy(
@@ -12,15 +12,15 @@ passport.use(
       passwordField: "password",
     },
     function (email, password, cb) {
-      User.findOne({ email: email }, (err, user) => {
+      Users.findOne({ email: email }, (err, user) => {
         if (err) {
           return cb(err);
         }
         if (!user) {
           return cb(null, false, { message: "Incorrect username" });
         }
-        bcrypt.compare(password, user.password, (err, res) => {
-          if (res) {
+        bcrypt.compare(password, user.password, (err, log) => {
+          if (log) {
             // passwords match! log user in
             // passwords match! log user in
             return cb(null, user, { message: "Logged In Successfully" });
@@ -42,7 +42,7 @@ passport.use(
     },
     function (jwtPayload, cb) {
       //find the user in db if needed. This functionality may be omitted if you store everything you'll need in JWT payload.
-      return User.findOneById(jwtPayload.id)
+      return Users.findOne({ _id: jwtPayload.user._id })
         .then((user) => {
           return cb(null, user);
         })

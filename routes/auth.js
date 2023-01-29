@@ -11,8 +11,6 @@ const authController = require("../controllers/authController");
 // upload.single("image"),
 router.post("/", authController.sign_up_post);
 
-router.get("/log-out", authController.logout_get);
-
 router.post("/log-in", authController.login_post);
 
 module.exports = router;
