@@ -6,6 +6,7 @@ const Schema = mongoose.Schema;
 const postsSchema = new Schema({
   title: { type: String, required: true },
   summary: { type: String, required: true },
+  content: { type: String, required: true },
   publish: { type: Boolean, required: true },
   date: { type: Date, require: true },
 });
