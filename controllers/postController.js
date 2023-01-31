@@ -158,20 +158,18 @@ exports.delete_post = (req, res, next) => {
 };
 
 exports.delete_comment = (req, res, next) => {
-  Post.findByIdAndRemove(req.params.post, (err) => {
+  Comments.findByIdAndRemove(req.params.commentID, (err) => {
     if (err) {
       next(err);
     }
-
-    Post.find({}).exec(function (err, posts) {
+    console.log()
+    Comments.find({ commentID: req.params.post }).exec(function (err, comments) {
       if (err) {
         next(err);
       }
-      res
-        .json({
-          posts,
-        })
-        .status(200);
+      res.json({
+        comments,
+      });
     });
   });
 };
