@@ -20,7 +20,7 @@ This api was built with the sole reason of data security in mind for holding blo
 on success, output all artice published or not 
 
 ## */auth*
-for authentiaating used on log-in and sign-up 
+for authenticating user on log-in and sign-up 
 
 ## */blog*
 all crud operations on posts and comments 
