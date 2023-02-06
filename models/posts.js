@@ -9,7 +9,9 @@ const postsSchema = new Schema({
   content: { type: String, required: true },
   publish: { type: Boolean, required: true },
   date: { type: Date, require: true },
-});
+  imageUrl: { type: String },
+  publicId: { type: String },
+}); 
 
 postsSchema.virtual("formatted_date").get(function () {
   return DateTime.fromJSDate(this.date).toLocaleString(DateTime.DATE_MED);
@@ -20,5 +22,5 @@ postsSchema.virtual("url").get(function () {
   // We don't use an arrow function as we'll need the this object
   return `/post/${this._id}`;
 });
-
+ 
 module.exports = mongoose.model("Posts", postsSchema);

@@ -17,6 +17,49 @@ exports.posts_get = (req, res, next) => {
   });
 };
 
+exports.posts_update_image = (req, res, next) => {
+  const { imageUrl, publicId } = req.body;
+  const posts = {
+    imageUrl,
+    publicId,
+  };
+ 
+  Post.findByIdAndUpdate(req.params.post, posts, (err) => {
+    if (err) {
+      next(err);
+    }
+    res.status(200)
+  });
+};
+
+
+exports.posts_update = (req, res, next) => {
+  const { title,
+    summary,
+    publish,
+    content,
+      } = req.body;
+  const posts = {
+    title,
+    summary,
+    publish,
+    content,
+  };
+  console.log('here')
+  Post.findByIdAndUpdate(req.params.post, posts, (err) => {
+    if (err) {
+      next(err);
+    }
+    Post.find({})
+     .exec((err, posts)=>{
+      if (err){
+        next(err)
+      }
+      res.json({posts}).status(200)
+     })
+  });
+};
+
 exports.posts_update = [
   body("title", "title must be included").isLength({ min: 1 }).trim().escape(),
   body("summary", " must contain a descriptive message of more than 15 words")
@@ -162,8 +205,11 @@ exports.delete_comment = (req, res, next) => {
     if (err) {
       next(err);
     }
-    console.log()
-    Comments.find({ commentID: req.params.post }).exec(function (err, comments) {
+    console.log();
+    Comments.find({ commentID: req.params.post }).exec(function (
+      err,
+      comments
+    ) {
       if (err) {
         next(err);
       }
@@ -174,22 +220,24 @@ exports.delete_comment = (req, res, next) => {
   });
 };
 
-
 exports.posts_post = [
-  body("title", "title must be included").isLength({ min: 1 }).trim().escape(),
-  body("summary", " must contain a descriptive message of more than 15 words")
+  body("title", "title must be present").isLength({ min: 1 }).trim().escape(),
+  body("summary", " please add words of more than 15 words")
     .isLength({ min: 10 })
     .trim()
     .escape(),
-  (req, res, next) => {
+  async function (req, res, next) {
     // Extract the validation errors from a request.
     const errors = validationResult(req);
-    const { title, summary, content, publish } = req.body;
+    const { title, summary, content, publish, date } = req.body;
+
     const post = new Post({
       title,
       summary,
       content,
       publish,
+      imageUrl: "",
+      publicId: "",
       date: new Date(),
     });
 
@@ -202,11 +250,11 @@ exports.posts_post = [
         .status(400);
       return;
     }
-    post.save((err) => {
+    post.save((err, post) => {
       if (err) {
         return next(err);
       }
-      res.json({ message: "ok" }).status(200);
+      res.json({ id: post._id }).status(200);
     });
   },
 ];

@@ -10,6 +10,18 @@ router.post(
   postController.posts_post
 );
 
+router.put(
+  "/:post/update_image",
+  passport.authenticate("jwt", { session: false }),
+  postController.posts_update_image 
+);
+
+router.put(
+  "/:post/update",
+  passport.authenticate("jwt", { session: false }),
+  postController.posts_update
+);
+
 router.post(
   "/:post/toggle",
   passport.authenticate("jwt", { session: false }),
