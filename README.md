@@ -13,16 +13,16 @@ This api was built with the sole reason of data security in mind for holding blo
 </ol>
 
 ### API Routes
- */*
+## */*
  on success, outputs all publish articles 
  
- */all*
+## */all*
 on success, output all artice published or not 
 
-*/auth*
+## */auth*
 for authentiaating used on log-in and sign-up 
 
-*/blog*
+## */blog*
 all crud operations on posts and comments 
 
 ## more routes would be updated later on 
