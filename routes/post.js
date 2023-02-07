@@ -13,7 +13,7 @@ router.post(
 router.put(
   "/:post/update_image",
   passport.authenticate("jwt", { session: false }),
-  postController.posts_update_image 
+  postController.posts_update_image
 );
 
 router.put(
@@ -22,11 +22,11 @@ router.put(
   postController.posts_update
 );
 
-router.post(
+router.put(
   "/:post/toggle",
   passport.authenticate("jwt", { session: false }),
-  postController.toggle
-);
+  postController.toggle 
+); 
 
 router.delete(
   "/:post/delete",

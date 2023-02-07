@@ -16,7 +16,7 @@ exports.login_post =
           .json({
             user: user,
             info,
-          })
+          }) 
           .status(400);
       }
 

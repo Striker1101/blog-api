@@ -6,15 +6,16 @@ exports.index = (req, res, next) => {
     }
     if (!posts.length > 0) {
       res
-        .json({
-          message: "no posts",
-        })
+        .json([
+          { message: "no posts",}
+        ])
         .status(404);
+        return;
     }
     res 
-      .json({
-        posts,
-      })
+      .json({ 
+        posts,   
+      }) 
       .status(200);
   });
 };

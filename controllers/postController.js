@@ -14,7 +14,7 @@ exports.posts_get = (req, res, next) => {
     res.json({
       post: details,
     });
-  });
+  }); 
 };
 
 exports.posts_update_image = (req, res, next) => {
@@ -23,81 +23,41 @@ exports.posts_update_image = (req, res, next) => {
     imageUrl,
     publicId,
   };
- 
+
   Post.findByIdAndUpdate(req.params.post, posts, (err) => {
     if (err) {
       next(err);
     }
-    res.status(200)
-  });
-};
-
-
-exports.posts_update = (req, res, next) => {
-  const { title,
-    summary,
-    publish,
-    content,
-      } = req.body;
-  const posts = {
-    title,
-    summary,
-    publish,
-    content,
-  };
-  console.log('here')
-  Post.findByIdAndUpdate(req.params.post, posts, (err) => {
-    if (err) {
-      next(err);
-    }
-    Post.find({})
-     .exec((err, posts)=>{
-      if (err){
-        next(err)
-      }
-      res.json({posts}).status(200)
-     })
-  });
-};
-
-exports.posts_update = [
-  body("title", "title must be included").isLength({ min: 1 }).trim().escape(),
-  body("summary", " must contain a descriptive message of more than 15 words")
-    .isLength({ min: 10 })
-    .trim()
-    .escape(),
-
-  (req, res, next) => {
-    const errors = validationResult(req);
-    const { title, summary, content, publish, date } = req.body;
-
-    const post = new Post({
-      title,
-      summary,
-      content,
-      publish,
-      date,
-      _id: req.params.postId,
-    });
-
-    if (!errors.isEmpty()) {
-      // there is an error
-      res
-        .json({
-          errors: errors.array(),
-        })
-        .status(400);
-      return;
-    }
-
-    Post.findByIdAndUpdate(req.params.postId, post, {}, (err, result) => {
+    Post.find({}).exec((err, posts) => {
       if (err) {
         next(err);
       }
-      res.json({ message: "ok" }).status(200);
+      res.json({ posts }).status(200);
     });
-  },
-];
+  });
+};
+
+exports.posts_update = (req, res, next) => {
+  const { title, summary, publish, content } = req.body;
+  const posts = {
+    title,
+    summary,
+    publish, 
+    content,
+  };
+
+  Post.findByIdAndUpdate(req.params.post, posts, (err) => {
+    if (err) {
+      next(err);
+    }
+    Post.find({}).exec((err, posts) => {
+      if (err) {
+        next(err);
+      }
+      res.json({ posts }).status(200);
+    });
+  });
+};
 
 exports.comment_one_get = (req, res, next) => {
   Comments.findById(req.params.commentID).exec(function (err, details) {
@@ -149,34 +109,24 @@ exports.comments_get = (req, res, next) => {
 };
 
 exports.toggle = (req, res, next) => {
-  Post.find({ _id: req.params.post }).exec(function (err, post) {
+  const newPost = new Post({
+    publish: req.body.toggle,
+    _id: req.params.post,
+  });
+  Post.findByIdAndUpdate(req.params.post, newPost, (err, post) => {
     if (err) {
       next(err);
     }
 
-    const newPost = new Post({
-      _id: req.params.post,
-      title: post.title,
-      summary: post.summary,
-      content: post.content,
-      publish: req.body.toggle,
-      date: post.date,
-    });
-    Post.findByIdAndUpdate(req.params.post, newPost, {}, (err, post) => {
+    Post.find({}).exec(function (err, posts) {
       if (err) {
         next(err);
       }
-
-      Post.find({}).exec(function (err, posts) {
-        if (err) {
-          next(err);
-        }
-        res
-          .json({
-            posts,
-          })
-          .status(200);
-      });
+      res
+        .json({
+          posts,
+        })
+        .status(200); 
     });
   });
 };
@@ -254,7 +204,12 @@ exports.posts_post = [
       if (err) {
         return next(err);
       }
-      res.json({ id: post._id }).status(200);
+      Post.find({}).exec((err, posts) => {
+        if (err) {
+          next(err);
+        }
+        res.json({ posts, id: post._id }).status(200);
+      });
     });
   },
 ];

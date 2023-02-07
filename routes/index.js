@@ -12,3 +12,4 @@ router.get(
   indexController.all
 );
 module.exports = router;
+ 
