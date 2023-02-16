@@ -14,49 +14,53 @@ exports.posts_get = (req, res, next) => {
     res.json({
       post: details,
     });
-  }); 
+  });
 };
 
 exports.posts_update_image = (req, res, next) => {
-  const { imageUrl, publicId } = req.body;
-  const posts = {
-    imageUrl,
-    publicId,
-  };
+  if (req.user === "admin") {
+    const { imageUrl, publicId } = req.body;
+    const posts = {
+      imageUrl,
+      publicId,
+    };
 
-  Post.findByIdAndUpdate(req.params.post, posts, (err) => {
-    if (err) {
-      next(err);
-    }
-    Post.find({}).exec((err, posts) => {
+    Post.findByIdAndUpdate(req.params.post, posts, (err) => {
       if (err) {
         next(err);
       }
-      res.json({ posts }).status(200);
+      Post.find({}).exec((err, posts) => {
+        if (err) {
+          next(err);
+        }
+        res.json({ posts }).status(200);
+      });
     });
-  });
+  }
 };
 
 exports.posts_update = (req, res, next) => {
-  const { title, summary, publish, content } = req.body;
-  const posts = {
-    title,
-    summary,
-    publish, 
-    content,
-  };
+  if (req.user.role === "admin") {
+    const { title, summary, publish, content } = req.body;
+    const posts = {
+      title,
+      summary,
+      publish,
+      content,
+    };
 
-  Post.findByIdAndUpdate(req.params.post, posts, (err) => {
-    if (err) {
-      next(err);
-    }
-    Post.find({}).exec((err, posts) => {
+    Post.findByIdAndUpdate(req.params.post, posts, (err) => {
       if (err) {
         next(err);
       }
-      res.json({ posts }).status(200);
+      Post.find({}).exec((err, posts) => {
+        if (err) {
+          next(err);
+        }
+        res.json({ posts }).status(200);
+      });
     });
-  });
+  }
 };
 
 exports.comment_one_get = (req, res, next) => {
@@ -75,26 +79,28 @@ exports.comment_one_get = (req, res, next) => {
 };
 
 exports.comment_one_update = (req, res, next) => {
-  const { text } = req.body;
-  const comment = {
-    text,
-  };
-  Comments.findByIdAndUpdate(req.params.commentID, comment, (err) => {
-    if (err) {
-      next(err);
-    }
-    Comments.find({ commentID: req.params.post }).exec(function (
-      err,
-      comments
-    ) {
+  if (req.user === "admin") {
+    const { text } = req.body;
+    const comment = {
+      text,
+    };
+    Comments.findByIdAndUpdate(req.params.commentID, comment, (err) => {
       if (err) {
         next(err);
       }
-      res.json({
-        comments,
+      Comments.find({ commentID: req.params.post }).exec(function (
+        err,
+        comments
+      ) {
+        if (err) {
+          next(err);
+        }
+        res.json({
+          comments,
+        });
       });
     });
-  });
+  }
 };
 
 exports.comments_get = (req, res, next) => {
@@ -113,61 +119,70 @@ exports.toggle = (req, res, next) => {
     publish: req.body.toggle,
     _id: req.params.post,
   });
-  Post.findByIdAndUpdate(req.params.post, newPost, (err, post) => {
-    if (err) {
-      next(err);
-    }
-
-    Post.find({}).exec(function (err, posts) {
+  if (req.user.role === "admin") {
+    Post.findByIdAndUpdate(req.params.post, newPost, (err, post) => {
       if (err) {
         next(err);
       }
-      res
-        .json({
-          posts,
-        })
-        .status(200); 
+
+      Post.find({}).exec(function (err, posts) {
+        if (err) {
+          next(err);
+        }
+        res
+          .json({
+            posts,
+          })
+          .status(200);
+      });
     });
-  });
+  } else {
+    res.status(401);
+  }
 };
 
 exports.delete_post = (req, res, next) => {
-  Post.findByIdAndRemove(req.params.post, (err) => {
-    if (err) {
-      next(err);
-    }
-
-    Post.find({}).exec(function (err, posts) {
+  if (req.user.role === "admin") {
+    Post.findByIdAndRemove(req.params.post, (err) => {
       if (err) {
         next(err);
       }
-      res
-        .json({
-          posts,
-        })
-        .status(200);
+
+      Post.find({}).exec(function (err, posts) {
+        if (err) {
+          next(err);
+        }
+        res
+          .json({
+            posts,
+          })
+          .status(200);
+      });
     });
-  });
+  } else {
+  }
 };
 
 exports.delete_comment = (req, res, next) => {
-  Comments.findByIdAndRemove(req.params.commentID, (err) => {
-    if (err) {
-      next(err);
-    }
-    console.log();
-    Comments.find({ commentID: req.params.post }).exec(function (
-      err,
-      comments
-    ) {
+  if (req.user.role === "admin") {
+    Comments.findByIdAndRemove(req.params.commentID, (err) => {
       if (err) {
         next(err);
       }
-      res.json({
-        comments,
+      console.log();
+      Comments.find({ commentID: req.params.post }).exec(function (
+        err,
+        comments
+      ) {
+        if (err) {
+          next(err);
+        }
+        res.json({
+          comments,
+        });
       });
     });
-  });
+  }
 };
 
 exports.posts_post = [
@@ -177,40 +192,42 @@ exports.posts_post = [
     .trim()
     .escape(),
   async function (req, res, next) {
-    // Extract the validation errors from a request.
-    const errors = validationResult(req);
-    const { title, summary, content, publish, date } = req.body;
+    if (req.user.role === "admin") {
+      // Extract the validation errors from a request.
+      const errors = validationResult(req);
+      const { title, summary, content, publish } = req.body;
 
-    const post = new Post({
-      title,
-      summary,
-      content,
-      publish,
-      imageUrl: "",
-      publicId: "",
-      date: new Date(),
-    });
-
-    if (!errors.isEmpty()) {
-      // there is an error
-      res
-        .json({
-          errors: errors.array(),
-        })
-        .status(400);
-      return;
-    }
-    post.save((err, post) => {
-      if (err) {
-        return next(err);
-      }
-      Post.find({}).exec((err, posts) => {
-        if (err) {
-          next(err);
-        }
-        res.json({ posts, id: post._id }).status(200);
+      const post = new Post({
+        title,
+        summary,
+        content,
+        publish,
+        imageUrl: "",
+        publicId: "",
+        date: new Date(),
       });
-    });
+
+      if (!errors.isEmpty()) {
+        // there is an error
+        res
+          .json({
+            errors: errors.array(),
+          })
+          .status(400);
+        return;
+      }
+      post.save((err, post) => {
+        if (err) {
+          return next(err);
+        }
+        Post.find({}).exec((err, posts) => {
+          if (err) {
+            next(err);
+          }
+          res.json({ posts, id: post._id }).status(200);
+        });
+      });
+    }
   },
 ];
 

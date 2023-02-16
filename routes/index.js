@@ -8,7 +8,6 @@ router.get("/", indexController.index);
 
 router.get(
   "/all",
-  passport.authenticate("jwt", { session: false }),
   indexController.all
 );
 module.exports = router;

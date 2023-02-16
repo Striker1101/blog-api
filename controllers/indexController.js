@@ -13,7 +13,7 @@ exports.index = (req, res, next) => {
         return;
     }
     res 
-      .json({ 
+      .json({  
         posts,   
       }) 
       .status(200);
